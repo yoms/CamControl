@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTcpServer>
+#include <QUdpSocket>
 #include <QTcpSocket>
 #include "mcamera.h"
 
@@ -19,9 +20,11 @@ public slots:
     void onNewClient();
     void onClientDisconnected();
     void onPendingMessage();
+    void onResearchServer();
 private:
     QTcpServer *m_server;
-    QTcpSocket *m_client;
+    QUdpSocket *m_pongServer;
+    QTcpSocket *m_clientSocket;
     MCamera *m_camera;
     
 };

@@ -12,14 +12,15 @@ MCamera::Error MCamera::initialisation()
     m_context = gp_context_new();
     // set callbacks for camera messages
     gp_context_set_error_func(m_context, [](GPContext */*context*/, const char *format, va_list args, void */*data*/) {
-        qDebug() << "*** Contexterror ***\n";
-        vfprintf(stderr, format, args);
-        fprintf(stderr, "\n");
+        QString error;
+        error.vsprintf(format, args);
+        qDebug() << error;
     }, NULL);
 
     gp_context_set_message_func(m_context, [](GPContext */*context*/, const char *format, va_list args, void */*data*/) {
-        vprintf(format, args);
-        printf("\n");
+        QString message;
+        message.vsprintf(format, args);
+        qDebug() << message;
     }, NULL);
 
     int ret = gp_camera_init(m_camera, m_context);
