@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core widgets network
+QT       += core network
 
 TARGET = CamControl
 TEMPLATE = app
