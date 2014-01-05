@@ -1,5 +1,8 @@
 #include "server.h"
-#include "timelapse.h"
+#include "timelapsecommand.h"
+#include "capturecommand.h"
+#include "message.h"
+#include <QScopedPointer>
 Server::Server(QObject *parent) :
     QObject(parent)
 {
@@ -58,27 +61,14 @@ void Server::onClientDisconnected()
 
 void Server::onPendingMessage()
 {
-    QByteArray messageContent =  m_clientSocket->readAll();
-    switch(messageContent[0])
+    QScopedPointer<Message> message(readMessage(m_clientSocket->readAll()));
+    if(message.isNull())
     {
-    case '1':
-        {
-            m_camera->capture("One_shot");
-            break;
-        }
-    case '2':
-        {
-            QList<QByteArray> array = messageContent.split(';');
-            TimeLapse tl(m_camera,array[1].toInt(), array[2].toInt());
-            tl.run();
-            break;
-        }
-    default:
-        {
-            qDebug() << "unknown id";
-            break;
-        }
+        //TODO implement error return;
+        qDebug() << "The message cannot be compute";
+        return;
     }
+    processMessage(message);
 }
 
 void Server::onResearchServer()
@@ -94,5 +84,42 @@ void Server::onResearchServer()
                                      &sender, &senderPort);
 
              m_pongServer->writeDatagram("pong",sender, 8002);
-         }
+    }
+}
+
+void Server::onCommandFinish(bool result)
+{
+    Q_UNUSED(result)
+    //delete sender();
+}
+
+Message *Server::readMessage(const QByteArray & message)
+{
+    return Message::buildMessage(message);
+}
+
+
+void Server::processMessage(const QScopedPointer<Message>& message)
+{
+    Command* command;
+    switch(message->type())
+    {
+    case Message::Capture:
+        {
+            command = new CaptureCommand(m_camera, qobject_cast<CaptureMessage*>(message.data()));
+            break;
+        }
+    case Message::TimeLapse:
+        {
+            command = new TimeLapseCommand(m_camera, qobject_cast<TimeLapseMessage*>(message.data()));
+            break;
+        }
+    default:
+        {
+            qDebug() << "unknown id";
+            break;
+        }
+    }
+    connect(command, SIGNAL(finish(bool)), SLOT(onCommandFinish(bool)));
+    command->run();
 }

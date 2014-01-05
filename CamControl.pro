@@ -6,7 +6,13 @@
 
 QT       += core network
 
+arm6{
+    target.path = ./
+}
+
 TARGET = CamControl
+INSTALLS += target
+
 TEMPLATE = app
 LIBS = -lgphoto2
 QMAKE_CXXFLAGS += -Werror -std=c++0x
@@ -14,9 +20,15 @@ QMAKE_CXXFLAGS += -Werror -std=c++0x
 
 SOURCES += main.cpp\
     mcamera.cpp \
-    timelapse.cpp \
-    server.cpp
+    server.cpp \
+    message.cpp \
+    command.cpp \
+    timelapsecommand.cpp \
+    capturecommand.cpp
 
 HEADERS  += mcamera.h \
-    timelapse.h \
-    server.h
+    server.h \
+    message.h \
+    command.h \
+    timelapsecommand.h \
+    capturecommand.h

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <QCoreApplication>
 #include "mcamera.h"
 #include "server.h"
